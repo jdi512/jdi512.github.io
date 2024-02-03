@@ -95,33 +95,7 @@
 
         //서비스 key 입력
         key = "ho5ZzWHhC23tx5jSARHsEQdNvJY0fvloxEjtNOA39cLoKzXVaIuEyFPIwCpGm2uN52UF8PuwJF%2BSaStXbsHTBw%3D%3D";
-             //주소 출력
-            $.ajax({
-                type: "get",
-                url: "https://dapi.kakao.com/v2/local/geo/coord2address.json",
-                data: {
-                    x: long,
-                    y: lati
-                },
-                headers: { Authorization: "KakaoAK f2db25ca8a7febb6b146bc0ed55a50fd" },
-                success: function (data) {
-                    //지번 주소
-                    let address = '<b style="color:orange;">현재 위치:</b>' + data.documents[0].address.address_name;
-                    //구역 정의
-                    let district = data.documents[0].address.region_1depth_name;
-                    //도로명 주소
-                    if (data.documents[0].road_address != null) {
-                        address += '<small> (<b style="color:orange;">도로명 주소:</b>' + data.documents[0].road_address.address_name + '</small>)';
-                    } else {
-                        address += '<small> (<b style="color:orange;">도로명 주소:</b><b style="color:red;">존재 하지 않음.</small></b>)';
-                    }
-                    $(".address").empty();
-
-                    $(".address").append(address);
-
-                }
-
-            });
+   
         //위, 경도 -> 기상청 X,Y 좌표 변환
         function dfsXyConv(code, v1, v2) {
             const { PI, tan, log, cos, pow, floor, sin, sqrt, atan, abs, atan2 } = Math
@@ -253,8 +227,36 @@
             if (hour < 10) {
                 hourzero += '0';
             }
+                      //주소 출력
+            $.ajax({
+                type: "get",
+                url: "https://dapi.kakao.com/v2/local/geo/coord2address.json",
+                data: {
+                    x: long,
+                    y: lati
+                },
+                headers: { Authorization: "KakaoAK f2db25ca8a7febb6b146bc0ed55a50fd" },
+                success: function (data) {
+                    //지번 주소
+                    let address = '<b style="color:orange;">현재 위치:</b>' + data.documents[0].address.address_name;
+                    //구역 정의
+                    let district = data.documents[0].address.region_1depth_name;
+                    //도로명 주소
+                    if (data.documents[0].road_address != null) {
+                        address += '<small> (<b style="color:orange;">도로명 주소:</b>' + data.documents[0].road_address.address_name + '</small>)';
+                    } else {
+                        address += '<small> (<b style="color:orange;">도로명 주소:</b><b style="color:red;">존재 하지 않음.</small></b>)';
+                    }
+                    $(".address").empty();
 
+                    $(".address").append(address);
+
+                }
+
+            });
             let today = year + "" + monthzero + month + "" + datezero + date;
+            
+            
             let rs = dfsXyConv("toXY", lati, long);
             let nx = rs.x;
             let ny = rs.y;
