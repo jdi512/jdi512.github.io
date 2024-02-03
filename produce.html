@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+    <title>my portfolio</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/neodgm/neodgm-webfont@latest/neodgm/style.css');
+    
+    h1,
+    h3,
+    a{
+        font-family: 'NeoDunggeunmo';
+    }
+    .blink {
+        animation: blinker 1s linear infinite;
+    }
+
+    @keyframes blinker {
+        50% {
+            opacity: 0;
+        }
+    }
+    .box-container {
+        display: flex;
+        margin: 5px;
+    }
+    .address-container {
+        flex: 1;
+        margin: 5px;
+    }
+    .site-container {
+        flex: 1;
+        margin: 5px;
+    }
+
+
+    .time-container {
+        flex: 1;
+        margin: 5px;
+    }  
+    .current-time {
+        color: yellow;
+        font-weight: bold;
+    }
+    .address {
+        color: yellow;
+        font-weight: bold;
+    }
+  </style>
+<body style="background-color:black">
+    <div class="box-container">
+         
+    </div>
+    <div class="box-container">
+        <div class="time-container">
+            <h3 class="current-time"></h3>
+        </div>
+        <div class="address-container">
+            <h3 class="address"></h3>
+        </div>
+    </div>
+
+</body>
+  <script>
+    $(document).ready(function () {
+        //위 경도 찾기
+        function onGeolocationSuccess(position) {
+            lati = position.coords.latitude;
+            long = position.coords.longitude;
+        }
+        function onGeolocationFail(error) {
+            alert("GPS 연결이 힘듭니다.");
+        }
+        if (navigator.geolocation) {
+            var positionOptions = {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 10000
+            };
+            navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationFail, positionOptions);
+
+        }
+
+        //시간 출력
+        setInterval(function () {
+            let now = new Date();
+            let year = now.getFullYear();
+            let month = now.getMonth() + 1;
+            let date = now.getDate();
+            let hour = now.getHours();
+            let minute = now.getMinutes();
+            let second = now.getSeconds();
+            let weekday = ['일', '월', '화', '수', '목', '금', '토'];
+            let week = weekday[now.getDay()];
+            let hourzero = '';
+            let minutezero = '';
+            let secondzero = '';
+            if (hour < 10) {
+                hourzero += '0'
+            }
+            if (minute < 10) {
+                minutezero += '0'
+            }
+            if (second < 10) {
+                secondzero += '0'
+            }
+
+
+            let time = '  ' + "<h3><b style='color:orange';>" + year + '년' + month + '월' + date + '일<small>(' + week + ')</small></b>'+' '+'<b>' + hourzero + hour + '<b class="blink">:</b>' + minutezero + minute + '<b class="blink">:</b>' + secondzero + second + '</big></h3></b>';
+            document.querySelector('.current-time').innerHTML = time;
+                         //주소 출력
+            $.ajax({
+                type: "get",
+                url: "https://dapi.kakao.com/v2/local/geo/coord2address.json",
+                data: {
+                    x: long,
+                    y: lati
+                },
+                headers: { Authorization: "KakaoAK f2db25ca8a7febb6b146bc0ed55a50fd" },
+                success: function (data) {
+                    //지번 주소
+                    let address = '<b style="color:orange;">현재 위치:</b>' + data.documents[0].address.address_name;
+                    //구역 정의
+                    let district = data.documents[0].address.region_1depth_name;
+                    //도로명 주소
+                    if (data.documents[0].road_address != null) {
+                        address += '<small> (<b style="color:orange;">도로명 주소:</b>' + data.documents[0].road_address.address_name + '</small>)';
+                    } else {
+                        address += '<small> (<b style="color:orange;">도로명 주소:</b><b style="color:red;">존재 하지 않음.</small></b>)';
+                    }
+                    $(".address").empty();
+
+                    $(".address").append(address);
+
+                }
+
+            });
+        }, 1000);
+    });
+</script>
