@@ -11,7 +11,8 @@
     h1,
     h2,
     h3,
-    h4 {
+    h4,
+    a{
         font-family: 'NeoDunggeunmo';
     }
     .blink {
@@ -23,8 +24,42 @@
             opacity: 0;
         }
     }
+    .box-container {
+        display: flex;
+        margin: 5px;
+    }
+
+    .weather-container {
+        flex: 1;
+        margin: 5px;
+    }
+
+    .time-container {
+        flex: 1;
+        margin: 5px;
+    }  
+    .weather {
+        color: yellow;
+        font-weight: bold;
+    }
+
+    .current-time {
+        color: yellow;
+        font-weight: bold;
+    }
   </style>
-<body>
+<body style="background-color:black">
+    <div class="box-container">
+        <div class="address-container">
+            <h1 class="address"></h1>
+        </div>
+    </div>
+
+    <div class="box-container">
+        <div class="time-container">
+            <h3 class="current-time"></h3>
+        </div>
+    </div>
 <a href="http://www.github.com/jdi512">메인 화면</a>
 <a href="http://www.github.com/jdi512/companysite">companysite</a>
 <a href="http://www.github.com/jdi512/BIS">BIS</a>
