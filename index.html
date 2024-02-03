@@ -102,20 +102,24 @@
             let date = now.getDate();
             let hour = now.getHours();
             let minute = now.getMinutes();
+            let second = now.getSeconds();
             let weekday = ['일', '월', '화', '수', '목', '금', '토'];
             let week = weekday[now.getDay()];
             let hourzero = '';
             let minutezero = '';
-
+            let secondzero = '';
             if (hour < 10) {
                 hourzero += '0'
             }
             if (minute < 10) {
                 minutezero += '0'
             }
+            if (second < 10) {
+                secondzero += '0'
+            }
 
 
-            let time = '  ' + "<h3><b style='color:orange';>" + year + '년' + month + '월' + date + '일<small>(' + week + ')</small></b>'+' '+'<b>' + hourzero + hour + '<b class="blink">:</b>' + minutezero + minute + '</big></h3></b>';
+            let time = '  ' + "<h3><b style='color:orange';>" + year + '년' + month + '월' + date + '일<small>(' + week + ')</small></b>'+' '+'<b>' + hourzero + hour + '<b class="blink">:</b>' + minutezero + minute + '<b class="blink">:</b>' + secondzero + second + '</big></h3></b>';
             document.querySelector('.current-time').innerHTML = time;
                          //주소 출력
             $.ajax({
