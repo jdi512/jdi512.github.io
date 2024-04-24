@@ -87,80 +87,89 @@
 </div>
 </body>
   <script>
-    $(document).ready(function () {
-        //위 경도 찾기
-        function onGeolocationSuccess(position) {
-            lati = position.coords.latitude;
-            long = position.coords.longitude;
-        }
-        function onGeolocationFail(error) {
-            alert("GPS 연결이 힘듭니다.");
-        }
+$(document).ready(function () {
+    let lati = null;
+    let long = null;
+
+    // 위치 찾기 성공
+    function onGeolocationSuccess(position) {
+        lati = position.coords.latitude;
+        long = position.coords.longitude;
+    }
+
+    // 위치 찾기 실패
+    function onGeolocationFail(error) {
+        alert("GPS 연결이 힘듭니다.");
+    }
+
+    // 위치 찾기 시도
+    function getLocation() {
         if (navigator.geolocation) {
-            var positionOptions = {
+            let positionOptions = {
                 enableHighAccuracy: true,
                 maximumAge: 0,
                 timeout: 10000
             };
             navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationFail, positionOptions);
-
         }
+    }
 
-        //시간 출력
-        setInterval(function () {
-            let now = new Date();
-            let year = now.getFullYear();
-            let month = now.getMonth() + 1;
-            let date = now.getDate();
-            let hour = now.getHours();
-            let minute = now.getMinutes();
-            let second = now.getSeconds();
-            let weekday = ['일', '월', '화', '수', '목', '금', '토'];
-            let week = weekday[now.getDay()];
-            let hourzero = '';
-            let minutezero = '';
-            let secondzero = '';
-            if (hour < 10) {
-                hourzero += '0'
-            }
-            if (minute < 10) {
-                minutezero += '0'
-            }
-            if (second < 10) {
-                secondzero += '0'
-            }
+    // 현재 시간 표시
+    function displayTime() {
+        let now = new Date();
+        let year = now.getFullYear();
+        let month = now.getMonth() + 1;
+        let date = now.getDate();
+        let hour = now.getHours();
+        let minute = now.getMinutes();
+        let second = now.getSeconds();
+        let weekday = ['일', '월', '화', '수', '목', '금', '토'];
+        let week = weekday[now.getDay()];
+        let hourZero = hour < 10 ? '0' : '';
+        let minuteZero = minute < 10 ? '0' : '';
+        let secondZero = second < 10 ? '0' : '';
 
+        let time = `<h3><b style='color:orange';>${year}년 ${month}월 ${date}일<small>(${week})</small></b> <b>${hourZero}${hour}<b class="blink">:</b>${minuteZero}${minute}<b class="blink">:</b>${secondZero}${second}</big></h3>`;
+        $('.current-time').html(time);
+    }
 
-            let time = '  ' + "<h3><b style='color:orange';>" + year + '년' + month + '월' + date + '일<small>(' + week + ')</small></b>'+' '+'<b>' + hourzero + hour + '<b class="blink">:</b>' + minutezero + minute + '<b class="blink">:</b>' + secondzero + second + '</big></h3></b>';
-            document.querySelector('.current-time').innerHTML = time;
-                         //주소 출력
-            $.ajax({
-                type: "get",
-                url: "https://dapi.kakao.com/v2/local/geo/coord2address.json",
-                data: {
-                    x: long,
-                    y: lati
-                },
-                headers: { Authorization: "KakaoAK f2db25ca8a7febb6b146bc0ed55a50fd" },
-                success: function (data) {
-                    //지번 주소
-                    let address = '<b style="color:orange;">현재 위치:</b>' + data.documents[0].address.address_name;
-                    //구역 정의
-                    let district = data.documents[0].address.region_1depth_name;
-                    //도로명 주소
-                    if (data.documents[0].road_address != null) {
-                        address += '<small> (<b style="color:orange;">도로명 주소:</b>' + data.documents[0].road_address.address_name + '</small>)';
-                    } else {
-                        address += '<small> (<b style="color:orange;">도로명 주소:</b><b style="color:red;">존재 하지 않음.</small></b>)';
-                    }
-                    $(".address").empty();
+    // 주소 가져오기
+    function getAddress() {
+        $.ajax({
+            type: "get",
+            url: "https://dapi.kakao.com/v2/local/geo/coord2address.json",
+            data: {
+                x: long,
+                y: lati
+            },
+            headers: {
+                Authorization: "KakaoAK f2db25ca8a7febb6b146bc0ed55a50fd"
+            },
+            success: function (data) {
+                let address = `<b style="color:orange;">현재 위치:</b> ${data.documents[0].address.address_name}`;
+                let roadAddress = data.documents[0].road_address;
 
-                    $(".address").append(address);
-
+                if (roadAddress !== null) {
+                    address += `<small> (<b style="color:orange;">도로명 주소:</b> ${roadAddress.address_name}</small>)`;
+                } else {
+                    address += `<small> (<b style="color:orange;">도로명 주소:</b><b style="color:red;">존재 하지 않음.</small></b>)`;
                 }
 
-            });
+                $(".address").empty().append(address);
+            }
+        });
+    }
+
+    // 실행
+    function run() {
+        getLocation();
+        setInterval(function () {
+            displayTime();
+            getAddress();
         }, 1000);
-    });
+    }
+
+    run();
+});
 </script>
 </html>
