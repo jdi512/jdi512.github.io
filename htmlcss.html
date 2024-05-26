@@ -1,1 +1,167 @@
+<!DOCTYPE html>
+<html>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+    <title>my portfolio</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/neodgm/neodgm-webfont@latest/neodgm/style.css');
+    
+    *{
+        font-family: 'NeoDunggeunmo';
+    }
+    .blink {
+        animation: blinker 1s linear infinite;
+    }
 
+    @keyframes blinker {
+        50% {
+            opacity: 0;
+        }
+    }
+    .box-container {
+        display: flex;
+        margin: 5px;
+    }
+    .address-container {
+        flex: 1;
+        margin: 5px;
+    }
+    .site-container {
+        flex: 1;
+        margin: 5px;
+    }
+
+
+    .time-container {
+        flex: 1;
+        margin: 5px;
+    }  
+    .current-time {
+        color: yellow;
+        font-weight: bold;
+    }
+    .address {
+        color: yellow;
+        font-weight: bold;
+    }
+  </style>
+<body style="background-color:black">
+      <div class="box-container">
+        <div class="time-container">
+            <h3 class="current-time"></h3>
+        </div>
+        <div class="address-container">
+            <h3 class="address"></h3>
+        </div>
+    </div>
+
+<div class="box-container">
+  <div class="site-container">
+       <a  style="color:yellowgreen; text-decoration:none;"  href="http://jdi512.github.io/index.html"><h2>메인</h2></a>
+    </div>
+    <div class="site-container">
+       <a  style="color:yellowgreen; text-decoration:none;"  href="http://jdi512.github.io/introduce.html"><h2>자기 소개</h2></a>
+    </div>
+    <div class="site-container">
+       <a  style="color:yellowgreen; text-decoration:none;"  href="http://jdi512.github.io/companysite.html"><h2>companysite(프로젝트1)</h2></a>
+    </div>
+    <div class="site-container">
+        <a style="color:yellowgreen; text-decoration:none;" href="http://jdi512.github.io/BIS.html"><h2>BIS(프로젝트2)</h2></a>
+    </div>
+    <div class="site-container">
+        <a style="color:yellowgreen; text-decoration:none;" href="http://jdi512.github.io/htmlcss.html"><h2>CSS/html(기타 이것저것)</h2></a>
+    </div>
+</div>
+<div class="box-container">
+  
+</div>
+</body>
+  <script>
+    $(document).ready(function () {
+    let lati = null;
+    let long = null;
+
+    // 위치 찾기 성공
+    function onGeolocationSuccess(position) {
+        lati = position.coords.latitude;
+        long = position.coords.longitude;
+    }
+
+    // 위치 찾기 실패
+    function onGeolocationFail(error) {
+        alert("GPS 연결이 힘듭니다.");
+    }
+
+    // 위치 찾기 시도
+    function getLocation() {
+        if (navigator.geolocation) {
+            let positionOptions = {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 10000
+            };
+            navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationFail, positionOptions);
+        }
+    }
+
+    // 현재 시간 표시
+    function displayTime() {
+        let now = new Date();
+        let year = now.getFullYear();
+        let month = now.getMonth() + 1;
+        let date = now.getDate();
+        let hour = now.getHours();
+        let minute = now.getMinutes();
+        let second = now.getSeconds();
+        let weekday = ['일', '월', '화', '수', '목', '금', '토'];
+        let week = weekday[now.getDay()];
+        let hourZero = hour < 10 ? '0' : '';
+        let minuteZero = minute < 10 ? '0' : '';
+        let secondZero = second < 10 ? '0' : '';
+
+        let time = `<h3><b style='color:orange';>${year}년 ${month}월 ${date}일<small>(${week})</small></b> <b>${hourZero}${hour}<b class="blink">:</b>${minuteZero}${minute}<b class="blink">:</b>${secondZero}${second}</big></h3>`;
+        $('.current-time').html(time);
+    }
+
+    // 주소 가져오기
+    function getAddress() {
+        $.ajax({
+            type: "get",
+            url: "https://dapi.kakao.com/v2/local/geo/coord2address.json",
+            data: {
+                x: long,
+                y: lati
+            },
+            headers: {
+                Authorization: "KakaoAK f2db25ca8a7febb6b146bc0ed55a50fd"
+            },
+            success: function (data) {
+                let address = `<b style="color:orange;">현재 위치:</b> ${data.documents[0].address.address_name}`;
+                let roadAddress = data.documents[0].road_address;
+
+                if (roadAddress !== null) {
+                    address += `<small> (<b style="color:orange;">도로명 주소:</b> ${roadAddress.address_name}</small>)`;
+                } else {
+                    address += `<small> (<b style="color:orange;">도로명 주소:</b><b style="color:red;">존재 하지 않음.</small></b>)`;
+                }
+
+                $(".address").empty().append(address);
+            }
+        });
+    }
+
+    // 실행
+    function run() {
+        getLocation();
+        setInterval(function () {
+            displayTime();
+            getAddress();
+        }, 1000);
+    }
+
+    run();
+});
+</script>
+</html>
